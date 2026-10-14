@@ -1,18 +1,31 @@
 {
-  "name": "sexpr-workbench",
+  "name": "sexpr-ts",
   "version": "1.0.0",
-  "description": "A recursive descent S-expression parser with a small web workbench.",
+  "description": "Recursive descent S-expression parser with typed output.",
   "type": "module",
-  "main": "server.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "sexpr-ts": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "start": "node server.js",
-    "test": "node --test test/"
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "cli": "node --loader tsx/esm src/cli.ts",
+    "prepublishOnly": "npm run build && npm test"
   },
   "engines": {
     "node": ">=20"
   },
-  "dependencies": {
-    "express": "^4.19.2"
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.3",
+    "vitest": "^1.4.0"
   },
   "license": "MIT"
 }
