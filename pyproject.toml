@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sexpr"
+version = "1.0.0"
+description = "Recursive descent parser for S-expressions."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "You" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-cov>=5.0"]
+
+[project.scripts]
+sexpr = "sexpr.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sexpr"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
