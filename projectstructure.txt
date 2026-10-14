@@ -1,4 +1,4 @@
-sexpr-workbench/
+s-expressions/
 ├── package.json
 ├── server.js
 ├── src/
