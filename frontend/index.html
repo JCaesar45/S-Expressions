@@ -1,0 +1,459 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>S-Expression Workbench</title>
+    <style>
+      :root {
+        --ink: #1a1a1f;
+        --paper: #faf9f6;
+        --accent: #c8553d;
+        --accent-soft: #f0e6e3;
+        --code-bg: #1e1e24;
+        --code-fg: #e8e6e3;
+        --muted: #6b6b70;
+        --border: #e0ddd6;
+        --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        --radius: 6px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+        background: var(--paper);
+        color: var(--ink);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      .workbench {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 3rem 1.5rem 4rem;
+      }
+
+      header {
+        margin-bottom: 2.5rem;
+      }
+
+      h1 {
+        font-size: 2rem;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.5rem;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 1.05rem;
+        font-style: italic;
+      }
+
+      .panel {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+      }
+
+      .panel-label {
+        display: block;
+        padding: 0.6rem 1rem;
+        font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        background: #f7f5f2;
+        border-bottom: 1px solid var(--border);
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 1rem;
+        border: none;
+        resize: vertical;
+        font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+        font-size: 0.9rem;
+        line-height: 1.7;
+        background: white;
+        color: var(--ink);
+        outline: none;
+      }
+
+      textarea:focus {
+        background: #fffefc;
+      }
+
+      .output {
+        padding: 1rem;
+        font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+        font-size: 0.85rem;
+        line-height: 1.7;
+        background: var(--code-bg);
+        color: var(--code-fg);
+        min-height: 80px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .output .key {
+        color: #9cdcfe;
+      }
+      .output .string {
+        color: #ce9178;
+      }
+      .output .number {
+        color: #b5cea8;
+      }
+      .output .paren {
+        color: #d4d4d4;
+      }
+
+      .error {
+        color: #f48771;
+        font-style: italic;
+      }
+
+      .controls {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      button {
+        font-family: inherit;
+        font-size: 0.85rem;
+        padding: 0.6rem 1.2rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: white;
+        color: var(--ink);
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      button:hover {
+        background: var(--accent-soft);
+        border-color: var(--accent);
+      }
+
+      button.primary {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+
+      button.primary:hover {
+        background: #b34a35;
+      }
+
+      .examples {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+      }
+
+      .examples button {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+      }
+
+      .badge {
+        display: inline-block;
+        font-family: "SF Mono", monospace;
+        font-size: 0.65rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: 3px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        margin-left: 0.5rem;
+        vertical-align: middle;
+        font-weight: 600;
+      }
+
+      footer {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.8rem;
+        color: var(--muted);
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="workbench">
+      <header>
+        <h1>S-Expression Workbench</h1>
+        <p class="subtitle">
+          A recursive descent parser for symbolic expressions, written in plain
+          JavaScript.
+        </p>
+      </header>
+
+      <div class="controls">
+        <button class="primary" id="parseBtn">Parse Expression</button>
+        <button id="clearBtn">Clear</button>
+      </div>
+
+      <div class="examples">
+        <button data-example="simple">Simple list</button>
+        <button data-example="basic">Rosetta Code example</button>
+        <button data-example="nested">Deep nesting</button>
+        <button data-example="strings">Quoted strings</button>
+      </div>
+
+      <div class="panel">
+        <span class="panel-label">
+          Input
+          <span class="badge">S-Expression</span>
+        </span>
+        <textarea
+          id="input"
+          spellcheck="false"
+          placeholder="Enter an S-expression..."
+        >
+((data "quoted data" 123 4.5)
+(data (!@# (4.5) "(more" "data)")))</textarea>
+      </div>
+
+      <div class="panel">
+        <span class="panel-label">
+          Output
+          <span class="badge">Parsed Structure</span>
+        </span>
+        <div class="output" id="output"></div>
+      </div>
+
+      <footer>
+        Handles quoted strings, integers, floats, unquoted atoms, and arbitrary
+        nesting. Quotes are preserved in string tokens per the Rosetta Code
+        specification.
+      </footer>
+    </div>
+
+    <script>
+      /**
+       * parseSexpr — Recursive descent parser for S-expressions.
+       *
+       * Grammar:
+       *   sexpr  → atom | list
+       *   list   → '(' sexpr* ')'
+       *   atom   → quoted-string | unquoted-token
+       *   quoted-string → '"' <any chars except "> '"' | '"' <unterminated>
+       *   unquoted-token → <chars not in [ \t\n()" ]>
+       *
+       * Numbers (integers and floats) are recognized via JavaScript's Number()
+       * coercion, with guards against empty strings and non-finite values.
+       */
+      function parseSexpr(str) {
+        let pos = 0;
+
+        function skipWhitespace() {
+          while (pos < str.length && /\s/.test(str[pos])) {
+            pos++;
+          }
+        }
+
+        function parseToken() {
+          skipWhitespace();
+
+          if (pos >= str.length) {
+            return null;
+          }
+
+          const ch = str[pos];
+
+          // --- List ---
+          if (ch === "(") {
+            pos++;
+            const list = [];
+
+            while (true) {
+              skipWhitespace();
+
+              if (pos >= str.length) {
+                throw new Error("Unterminated list: expected )");
+              }
+
+              if (str[pos] === ")") {
+                pos++;
+                return list;
+              }
+
+              const element = parseToken();
+              if (element !== null) {
+                list.push(element);
+              }
+            }
+          }
+
+          // --- Quoted string ---
+          if (ch === '"') {
+            const start = pos;
+            pos++;
+
+            while (pos < str.length && str[pos] !== '"') {
+              pos++;
+            }
+
+            if (pos < str.length) {
+              pos++;
+            }
+
+            return str.slice(start, pos);
+          }
+
+          // --- Unquoted token ---
+          const start = pos;
+
+          while (pos < str.length && !/[\s()"]/.test(str[pos])) {
+            pos++;
+          }
+
+          const token = str.slice(start, pos);
+
+          if (token === "") {
+            return null;
+          }
+
+          // Number recognition: integers and floats only.
+          // Guard against empty strings, whitespace-only, and non-finite values.
+          if (/^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(token)) {
+            const num = Number(token);
+            if (Number.isFinite(num)) {
+              return num;
+            }
+          }
+
+          return token;
+        }
+
+        skipWhitespace();
+
+        if (pos >= str.length) {
+          return null;
+        }
+
+        return parseToken();
+      }
+
+      // --- UI Wiring ---
+
+      const input = document.getElementById("input");
+      const output = document.getElementById("output");
+      const parseBtn = document.getElementById("parseBtn");
+      const clearBtn = document.getElementById("clearBtn");
+
+      function renderValue(value, depth) {
+        const indent = "  ".repeat(depth);
+        const childIndent = "  ".repeat(depth + 1);
+
+        if (Array.isArray(value)) {
+          if (value.length === 0) {
+            return "[]";
+          }
+
+          const items = value.map(function (item) {
+            return childIndent + renderValue(item, depth + 1);
+          });
+
+          return "[\n" + items.join(",\n") + "\n" + indent + "]";
+        }
+
+        if (typeof value === "number") {
+          return '<span class="number">' + value + "</span>";
+        }
+
+        if (typeof value === "string") {
+          // Distinguish quoted strings from bare atoms for display.
+          if (value.length > 0 && value[0] === '"') {
+            return '<span class="string">' + escapeHtml(value) + "</span>";
+          }
+          return '<span class="key">' + escapeHtml(value) + "</span>";
+        }
+
+        return String(value);
+      }
+
+      function escapeHtml(s) {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function runParse() {
+        const source = input.value.trim();
+
+        if (source === "") {
+          output.innerHTML = '<span class="error">No input.</span>';
+          return;
+        }
+
+        try {
+          const result = parseSexpr(source);
+
+          if (result === null) {
+            output.innerHTML = '<span class="error">Empty expression.</span>';
+            return;
+          }
+
+          output.innerHTML = renderValue(result, 0);
+        } catch (err) {
+          output.innerHTML =
+            '<span class="error">Error: ' + escapeHtml(err.message) + "</span>";
+        }
+      }
+
+      parseBtn.addEventListener("click", runParse);
+
+      clearBtn.addEventListener("click", function () {
+        input.value = "";
+        output.innerHTML = "";
+        input.focus();
+      });
+
+      // Keyboard shortcut: Ctrl/Cmd + Enter to parse.
+      input.addEventListener("keydown", function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          e.preventDefault();
+          runParse();
+        }
+      });
+
+      // Example loader.
+      const examples = {
+        simple: "(data1 data2 data3)",
+        basic:
+          '((data "quoted data" 123 4.5)\n(data (!@# (4.5) "(more" "data)")))',
+        nested: "(a (b (c (d (e f)))))",
+        strings: '(display "Hello, World" "with (parens)" "and \\"quotes\\"")'
+      };
+
+      document.querySelectorAll(".examples button").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          const key = btn.dataset.example;
+          input.value = examples[key] || "";
+          runParse();
+        });
+      });
+
+      // Initial parse on load.
+      runParse();
+    </script>
+  </body>
+</html>
