@@ -1,11 +1,79 @@
-s-expressions/
-├── package.json
-├── server.js
-├── src/
-│   └── parser.js
-├── test/
-│   └── parser.test.js
-└── public/
-    ├── index.html
-    ├── style.css
-    └── app.js
+s-expressions/                                    # repo root
+├── README.md                             # top-level: what this is, how to run each part
+├── .gitignore                            # node_modules, __pycache__, target, dist, .venv
+├── .editorconfig                         # 2-space indent for JS/TS, 4-space for Java, 4 for Python
+├── LICENSE
+│
+├── conformance/                          # shared test vectors (all four languages read these)
+│   ├── cases.json                        # {input, expected, notes} — the source of truth
+│   └── README.md                         # describes the schema and how to regenerate
+│
+├── js/                                   # #1 — Node/Express backend + browser workbench
+│   ├── package.json
+│   ├── server.js
+│   ├── src/
+│   │   └── parser.js
+│   ├── test/
+│   │   └── parser.test.js
+│   ├── test/
+│   │   └── conformance.test.js           # loads ../conformance/cases.json
+│   └── public/
+│       ├── index.html
+│       ├── style.css
+│       └── app.js
+│
+├── python/                               # #2 — Python package
+│   ├── pyproject.toml
+│   ├── README.md
+│   ├── src/
+│   │   └── sexpr/
+│   │       ├── __init__.py
+│   │       ├── parser.py
+│   │       ├── cli.py
+│   │       └── __main__.py
+│   └── tests/
+│       ├── test_parser.py
+│       └── test_conformance.py           # loads ../conformance/cases.json
+│
+├── typescript/                           # #3 — TypeScript package
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vitest.config.ts
+│   ├── README.md
+│   ├── src/
+│   │   ├── parser.ts
+│   │   ├── cli.ts
+│   │   └── index.ts
+│   └── test/
+│       ├── parser.test.ts
+│       └── conformance.test.ts           # loads ../conformance/cases.json
+│
+├── java/                                 # #4 — Java 17 Maven project
+│   ├── pom.xml
+│   ├── README.md
+│   └── src/
+│       ├── main/
+│       │   └── java/
+│       │       └── com/
+│       │           └── example/
+│       │               └── sexpr/
+│       │                   ├── Parser.java
+│       │                   ├── SExpr.java
+│       │                   ├── SExprError.java
+│       │                   └── Main.java
+│       └── test/
+│           └── java/
+│               └── com/
+│                   └── example/
+│                       └── sexpr/
+│                           ├── ParserTest.java
+│                           └── ConformanceTest.java    # loads ../conformance/cases.json
+│
+├── scripts/                              # cross-language helpers
+│   ├── run-all-tests.sh                  # cd into each subproject and run its tests
+│   └── check-conformance.sh              # runs only the conformance suite in each language
+│
+└── docs/
+    ├── grammar.abnf                      # the formal grammar all four implement
+    ├── design-notes.md                   # why quoted strings keep delimiters, etc.
+    └── architecture.svg                  # optional: a diagram if you want one
